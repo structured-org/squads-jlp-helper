@@ -32,9 +32,9 @@ jupiter_helper:
     dependent_accounts:
       - coin: WBTC
         custody: 5Pv3gM9JrFFH883SWAhvJC9RPYmo8UNxuFtv5bMMALkm
-        custodyDovesPriceAccount: hUqAT1KQ7eW1i6Csp9CXYtpPfSAvi835V7wKi5fRfmC
-        custodyPythnetPriceAccount: 4cSM2e6rvbGQUFiJbqytoVMi5GgghSMr8LwVrT9VPSPo
-        custodyTokenAccount: FgpXg2J3TzSs7w3WGYYE7aWePdrxBVLCXSxmAKnCZNtZ
+        custody_doves_price_account: hUqAT1KQ7eW1i6Csp9CXYtpPfSAvi835V7wKi5fRfmC
+        custody_pythnet_price_account: 4cSM2e6rvbGQUFiJbqytoVMi5GgghSMr8LwVrT9VPSPo
+        custody_token_account: FgpXg2J3TzSs7w3WGYYE7aWePdrxBVLCXSxmAKnCZNtZ
       - coin: WSOL
         custody: 7xS2gz2bTp3fwCC7knJvUWTEU9Tycczu6VhJYKgi1wdz
         custody_doves_price_account: FYq2BWQ1V5P1WFBqr3qB2Kb5yHVvSv7upzKodgQE5zXh

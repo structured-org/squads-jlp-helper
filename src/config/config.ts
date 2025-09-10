@@ -8,6 +8,41 @@ type ConfigFile = {
     multisig_address: string;
     vault_pda: string;
   };
+  jupiter_helper: {
+    program: string;
+    jh_accounts: Array<{
+      coin: string;
+      mode: 'withdrawer' | 'provider';
+      config: string;
+      vault: string;
+      ownership: string;
+    }>;
+    mints: {
+      JLP: string;
+      USDC: string;
+      USDT: string;
+      WETH: string;
+      WSOL: string;
+      WBTC: string;
+    };
+    jp_accounts: {
+      lp_token_mint: string;
+      transfer_authority: string;
+      perpetuals: string;
+      pool: string;
+      event_authority: string;
+      program: string;
+      dependent_accounts: Array<{
+        coin: string;
+        custody: string;
+        custody_doves_price_account: string;
+        custody_pythnet_price_account: string;
+        custody_token_account: string;
+      }>;
+      remaining_accounts: Array<string>;
+    };
+    alt_accounts: Array<string>;
+  };
   wormhole: {
     coins: Array<{
       coin: string;
@@ -67,6 +102,46 @@ export type SquadsMultisigApp = {
   programIdl: any;
   multisigAddress: web3.PublicKey;
   vaultPda: web3.PublicKey;
+};
+
+export type JupiterHelperApp = {
+  program: web3.PublicKey;
+  jhAccounts: Map<
+    string,
+    {
+      mode: 'withdrawer' | 'provider';
+      config: web3.PublicKey;
+      vault: web3.PublicKey;
+      ownership: web3.PublicKey;
+    }
+  >;
+  mints: {
+    JLP: web3.PublicKey;
+    USDC: web3.PublicKey;
+    USDT: web3.PublicKey;
+    WETH: web3.PublicKey;
+    WSOL: web3.PublicKey;
+    WBTC: web3.PublicKey;
+  };
+  jpAccounts: {
+    lpTokenMint: web3.PublicKey;
+    transferAuthority: web3.PublicKey;
+    perpetuals: web3.PublicKey;
+    pool: web3.PublicKey;
+    eventAuthority: web3.PublicKey;
+    program: web3.PublicKey;
+    dependentAccounts: Map<
+      string,
+      {
+        custody: web3.PublicKey;
+        custodyDovesPriceAccount: web3.PublicKey;
+        custodyPythnetPriceAccount: web3.PublicKey;
+        custodyTokenAccount: web3.PublicKey;
+      }
+    >;
+    remainingAccounts: Array<web3.PublicKey>;
+  };
+  altAccounts: Array<web3.PublicKey>;
 };
 
 export type WormholeChain = {
@@ -162,6 +237,73 @@ export function getSquadsMultisigAppFromConfig(
       config.squads_multisig.multisig_address,
     ),
     vaultPda: new web3.PublicKey(config.squads_multisig.vault_pda),
+  };
+}
+
+export function getJupiterHelperAppFromConfig(
+  config: ConfigFile,
+): JupiterHelperApp {
+  return {
+    program: new web3.PublicKey(config.jupiter_helper.program),
+    mints: {
+      JLP: new web3.PublicKey(config.jupiter_helper.mints.JLP),
+      USDC: new web3.PublicKey(config.jupiter_helper.mints.USDC),
+      USDT: new web3.PublicKey(config.jupiter_helper.mints.USDT),
+      WBTC: new web3.PublicKey(config.jupiter_helper.mints.WBTC),
+      WETH: new web3.PublicKey(config.jupiter_helper.mints.WETH),
+      WSOL: new web3.PublicKey(config.jupiter_helper.mints.WSOL),
+    },
+    jhAccounts: new Map(
+      config.jupiter_helper.jh_accounts.map((asset) => [
+        asset.coin,
+        {
+          mode: asset.mode,
+          config: new web3.PublicKey(asset.config),
+          vault: new web3.PublicKey(asset.vault),
+          ownership: new web3.PublicKey(asset.ownership),
+        },
+      ]),
+    ),
+    jpAccounts: {
+      lpTokenMint: new web3.PublicKey(
+        config.jupiter_helper.jp_accounts.lp_token_mint,
+      ),
+      transferAuthority: new web3.PublicKey(
+        config.jupiter_helper.jp_accounts.transfer_authority,
+      ),
+      perpetuals: new web3.PublicKey(
+        config.jupiter_helper.jp_accounts.perpetuals,
+      ),
+      pool: new web3.PublicKey(config.jupiter_helper.jp_accounts.pool),
+      eventAuthority: new web3.PublicKey(
+        config.jupiter_helper.jp_accounts.event_authority,
+      ),
+      program: new web3.PublicKey(config.jupiter_helper.jp_accounts.program),
+      dependentAccounts: new Map(
+        config.jupiter_helper.jp_accounts.dependent_accounts.map((accounts) => [
+          accounts.coin,
+          {
+            custody: new web3.PublicKey(accounts.custody),
+            custodyDovesPriceAccount: new web3.PublicKey(
+              accounts.custody_doves_price_account,
+            ),
+            custodyPythnetPriceAccount: new web3.PublicKey(
+              accounts.custody_pythnet_price_account,
+            ),
+            custodyTokenAccount: new web3.PublicKey(
+              accounts.custody_token_account,
+            ),
+          },
+        ]),
+      ),
+      remainingAccounts:
+        config.jupiter_helper.jp_accounts.remaining_accounts.map(
+          (account) => new web3.PublicKey(account),
+        ),
+    },
+    altAccounts: config.jupiter_helper.alt_accounts.map(
+      (account) => new web3.PublicKey(account),
+    ),
   };
 }
 

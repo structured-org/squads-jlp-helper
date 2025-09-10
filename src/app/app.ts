@@ -17,6 +17,7 @@ import { CommandValidator } from '@lib/validator';
 import {
   getBaseApp,
   parseConfig,
+  getJupiterHelperAppFromConfig,
   getJupiterPerpsAppFromConfig,
   getSquadsMultisigAppFromConfig,
   getWormholeAppfromConfig,
@@ -35,6 +36,8 @@ const baseApp = getBaseApp();
 const jupiterPerpsApp = getJupiterPerpsAppFromConfig(config);
 const squadsMultisigApp = getSquadsMultisigAppFromConfig(config);
 const wormholeApp = getWormholeAppfromConfig(config);
+const jupiterHelperApp = getJupiterHelperAppFromConfig(config);
+console.log(jupiterHelperApp);
 
 const commandValidator = new CommandValidator(logger, jupiterPerpsApp);
 

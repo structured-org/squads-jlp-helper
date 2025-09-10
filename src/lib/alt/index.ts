@@ -1,16 +1,15 @@
-import { web3, AnchorProvider } from '@project-serum/anchor';
+import { web3 } from '@project-serum/anchor';
 import { Logger } from 'pino';
 import { simulateAndBroadcast } from '@lib/helpers';
+import { BaseApp } from '@config/config';
 
 type HasAlt = { altAccounts: Array<web3.PublicKey>; altTable?: web3.PublicKey };
 
 export class Alt {
   constructor(
     private readonly logger: Logger,
-    private readonly provider: AnchorProvider,
-  ) {
-    this.logger = logger;
-  }
+    private readonly baseApp: BaseApp,
+  ) {}
 
   private async createAltIx(
     keypair: web3.Keypair,
@@ -19,8 +18,8 @@ export class Alt {
       authority: keypair.publicKey,
       payer: keypair.publicKey,
       recentSlot: (
-        await this.provider.connection.getBlocks(
-          (await this.provider.connection.getSlot()) - 100,
+        await this.baseApp.anchorProvider.connection.getBlocks(
+          (await this.baseApp.anchorProvider.connection.getSlot()) - 100,
           undefined,
           'confirmed',
         )
@@ -83,7 +82,7 @@ export class Alt {
   ): Promise<web3.PublicKey> {
     const createTable = await this.createTable(keypair, instance.altAccounts);
     await simulateAndBroadcast(
-      this.provider,
+      this.baseApp.anchorProvider,
       new web3.Transaction().add(
         createTable.createIx,
         createTable.extendIxs.pop(),
@@ -94,7 +93,7 @@ export class Alt {
     );
     for (const [i, extendIx] of createTable.extendIxs.entries()) {
       await simulateAndBroadcast(
-        this.provider,
+        this.baseApp.anchorProvider,
         new web3.Transaction().add(extendIx),
         `${ty} ALT Extension (${i + 1}/${createTable.extendIxs.length})`,
         this.logger,
@@ -105,15 +104,14 @@ export class Alt {
   }
 
   async createAndFillAltIfNecessary<T extends HasAlt>(
-    keypair: web3.Keypair,
     instance: T,
     ty: string,
   ): Promise<web3.PublicKey> {
     if (instance.altTable === undefined) {
-      return await this.createAndFillAlt(keypair, instance, ty);
+      return await this.createAndFillAlt(this.baseApp.keypair, instance, ty);
     } else {
       const lookupTableAccount = (
-        await this.provider.connection.getAddressLookupTable(
+        await this.baseApp.anchorProvider.connection.getAddressLookupTable(
           new web3.PublicKey(instance.altTable),
         )
       ).value;
@@ -134,7 +132,11 @@ export class Alt {
           this.logger.warn(`${ty} ALT missing -- ${remainingAccount}`);
         }
         this.logger.info(`${ty} Creating a new ALT`); // Don't modify the existing ALT
-        const newAlt = await this.createAndFillAlt(keypair, instance, ty);
+        const newAlt = await this.createAndFillAlt(
+          this.baseApp.keypair,
+          instance,
+          ty,
+        );
         this.logger.info(`${ty} Using new ALT -- ${newAlt}`);
         return newAlt;
       } else {
