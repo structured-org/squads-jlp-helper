@@ -134,10 +134,6 @@ export function getAssetUnderManagementUsdForCustody(
   custodyPrice: any,
   mode: PriceCalcMode,
 ) {
-  custodyPrice.price =
-    mode === 'Max'
-      ? new BN(Math.ceil(custodyPrice.price.toNumber()))
-      : new BN(Math.floor(custodyPrice.price.toNumber()));
   const owned = theoreticallyOwned(custody);
 
   if (custody.isStable) {
@@ -152,6 +148,10 @@ export function getAssetUnderManagementUsdForCustody(
     let tradersPnlDelta = new BN(0);
     let tradersHasProfit = false;
     let aumUsd = custody.assets.guaranteedUsd;
+    custodyPrice.price =
+      mode === 'Max'
+        ? new BN(Math.ceil(custodyPrice.price.toNumber()))
+        : new BN(Math.floor(custodyPrice.price.toNumber()));
 
     const netAssetsToken = BN.max(new BN(0), owned.sub(custody.assets.locked));
     const netAssetsUsd = getAssetAmountUsd(

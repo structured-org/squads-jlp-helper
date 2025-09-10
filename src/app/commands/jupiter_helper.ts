@@ -22,13 +22,23 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
       '--assetOut <assetOut>',
       'Denom of the token that we expect to get back',
     )
+    .requiredOption(
+      '--amountToProcess <amountToProcess>',
+      'Denom of the token that we expect to get back',
+    )
+    .requiredOption(
+      '--safetyMargin <safetyMargin>',
+      'Denom of the token that we expect to get back',
+    )
     .action(async (options) => {
       await createJupiterHelperAltTableIfNotExist(alt, jupiterHelper.app);
-      const res = await jupiterHelper.getCustodyAum(
-        jupiterHelper.app.jpAccounts.dependentAccounts.get(options.assetOut),
-        'Min',
+      console.log(
+        await jupiterHelper.getOptimalAmounts(
+          options.safetyMargin,
+          options.amountToProcess,
+          options.assetOut,
+        ),
       );
-      console.log(res);
       // const processIx = await jupiterHelper.processIx(
       //   coin.amount.toNumber(),
       //   options.assetOut,

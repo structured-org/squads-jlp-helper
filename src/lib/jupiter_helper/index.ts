@@ -2,15 +2,16 @@ import { Logger } from 'pino';
 import {
   BaseApp,
   JupiterHelperApp,
-  JupiterHelperDepenedentAccounts,
+  JupiterPerpetualsDepenedentAccounts,
 } from '@config/config';
 import { BN, Program, web3 } from '@project-serum/anchor';
 import { Program as CoralProgram } from '@coral-xyz/anchor';
-import { getAssociatedTokenAddressSync } from '@solana/spl-token';
+import { getAssociatedTokenAddressSync, getMint } from '@solana/spl-token';
 import {
   getAssetUnderManagementUsdForCustody,
   PriceCalcMode,
 } from '@lib/jupiter_helper/internal';
+import Decimal from 'decimal.js';
 
 export class JupiterHelper {
   constructor(
@@ -24,7 +25,7 @@ export class JupiterHelper {
   }
 
   async getCustodyAum(
-    jupiterHelperDependentAccounts: JupiterHelperDepenedentAccounts,
+    jupiterPerpetualsDepenedentAccounts: JupiterPerpetualsDepenedentAccounts,
     mode: PriceCalcMode,
   ): Promise<number> {
     const perpsProgramInstance = new Program(
@@ -39,7 +40,7 @@ export class JupiterHelper {
       'Custody',
       (
         await this.baseApp.anchorProvider.connection.getAccountInfo(
-          jupiterHelperDependentAccounts.custody,
+          jupiterPerpetualsDepenedentAccounts.custody,
         )
       ).data,
     );
@@ -55,7 +56,7 @@ export class JupiterHelper {
       'AgPriceFeed',
       (
         await this.baseApp.anchorProvider.connection.getAccountInfo(
-          jupiterHelperDependentAccounts.custodyDovesPriceAccount,
+          jupiterPerpetualsDepenedentAccounts.custodyDovesPriceAccount,
         )
       ).data,
     );
@@ -67,6 +68,144 @@ export class JupiterHelper {
       },
       mode,
     ).toNumber();
+  }
+
+  async getOptimalAmounts(
+    safetyMargin: number,
+    tokenAmountIn: number,
+    assetOut: string,
+  ): Promise<Array<number>> {
+    if (safetyMargin > 10000 || safetyMargin < 0) {
+      throw new Error('Safety margin must be between 0 and 10000');
+    }
+    const jupiterPerpetualsDepenedentAccounts: JupiterPerpetualsDepenedentAccounts =
+      this.app.jpAccounts.dependentAccounts.get(assetOut);
+    const perpsProgramInstance = new Program(
+      await Program.fetchIdl(
+        this.app.jpAccounts.program,
+        this.baseApp.anchorProvider,
+      ),
+      this.app.jpAccounts.program,
+      this.baseApp.anchorProvider,
+    );
+    const pool = perpsProgramInstance.coder.accounts.decode(
+      'Pool',
+      (
+        await this.baseApp.anchorProvider.connection.getAccountInfo(
+          this.app.jpAccounts.pool,
+        )
+      ).data,
+    );
+    const custody = perpsProgramInstance.coder.accounts.decode(
+      'Custody',
+      (
+        await this.baseApp.anchorProvider.connection.getAccountInfo(
+          jupiterPerpetualsDepenedentAccounts.custody,
+        )
+      ).data,
+    );
+
+    const swapMultiplier = custody.isStable
+      ? new Decimal(pool.fees.stableSwapMultiplier.toNumber())
+      : new Decimal(pool.fees.swapMultiplier.toNumber());
+    const poolAumUsdPreCalc = await this.getPoolAum();
+
+    const custodyAum = await this.getCustodyAum(
+      jupiterPerpetualsDepenedentAccounts,
+      custody,
+    );
+    const jlpToken = await getMint(
+      this.baseApp.anchorProvider.connection,
+      this.app.jpAccounts.lpTokenMint,
+    );
+
+    let custodyAumUsdDeduct = new Decimal(0);
+    let poolAumUsdDeduct = new Decimal(0);
+    let jlpTotalSupplyDeduct = new Decimal(0);
+
+    const tokenAmountsIn: Array<number> = [];
+    while (tokenAmountIn > 0) {
+      const poolAumUsd = new Decimal(poolAumUsdPreCalc)
+        .div(new Decimal(10).pow(6))
+        .sub(poolAumUsdDeduct);
+
+      const currentUsd = new Decimal(custodyAum)
+        .div(new Decimal(10).pow(6))
+        .sub(custodyAumUsdDeduct);
+
+      const lpTokenDecimals = new Decimal(10).pow(jlpToken.decimals);
+      let totalSupplyJlp = new Decimal(jlpToken.supply.toString()).sub(
+        jlpTotalSupplyDeduct,
+      );
+
+      let targetUsd = poolAumUsd
+        .mul(new Decimal(custody.targetRatioBps.toNumber()))
+        .div(10000);
+      let initialDiffUsd = targetUsd.sub(currentUsd).abs();
+      let maxDiscountDepositUsd = initialDiffUsd.mul(2).div(swapMultiplier);
+
+      let jlpVirtualPriceUsd = poolAumUsd
+        .div(totalSupplyJlp)
+        .mul(lpTokenDecimals);
+      let optimalAmountJlp = maxDiscountDepositUsd
+        .div(jlpVirtualPriceUsd)
+        .mul(lpTokenDecimals);
+
+      const updatedPoolAumUsd = poolAumUsd.sub(maxDiscountDepositUsd);
+      targetUsd = updatedPoolAumUsd
+        .mul(new Decimal(custody.targetRatioBps.toNumber()))
+        .div(10000);
+      initialDiffUsd = targetUsd.sub(currentUsd).abs();
+      maxDiscountDepositUsd = initialDiffUsd.mul(2).div(swapMultiplier);
+
+      totalSupplyJlp = totalSupplyJlp.sub(optimalAmountJlp);
+      jlpVirtualPriceUsd = updatedPoolAumUsd
+        .div(totalSupplyJlp)
+        .mul(lpTokenDecimals);
+      optimalAmountJlp = maxDiscountDepositUsd
+        .div(jlpVirtualPriceUsd)
+        .mul(lpTokenDecimals);
+
+      const tokenAmIn1 = optimalAmountJlp.floor().toNumber();
+      const tokenAmIn2 =
+        tokenAmountIn - tokenAmIn1 < 0 ? tokenAmountIn : tokenAmIn1;
+      if (tokenAmIn2 !== tokenAmountIn) {
+        tokenAmountsIn.push(tokenAmIn2 - tokenAmIn2 * (safetyMargin / 10000));
+        tokenAmountIn -= tokenAmIn2 - tokenAmIn2 * (safetyMargin / 10000);
+      } else {
+        tokenAmountsIn.push(tokenAmIn2);
+        tokenAmountIn -= tokenAmIn2;
+      }
+
+      custodyAumUsdDeduct = custodyAumUsdDeduct.add(
+        maxDiscountDepositUsd.sub(
+          maxDiscountDepositUsd.mul(new Decimal(safetyMargin / 10000)),
+        ),
+      );
+      poolAumUsdDeduct = poolAumUsdDeduct.add(
+        maxDiscountDepositUsd.sub(
+          maxDiscountDepositUsd.mul(new Decimal(safetyMargin / 10000)),
+        ),
+      );
+      jlpTotalSupplyDeduct = jlpTotalSupplyDeduct.add(
+        optimalAmountJlp.sub(
+          optimalAmountJlp.mul(new Decimal(safetyMargin / 10000)),
+        ),
+      );
+    }
+
+    return tokenAmountsIn;
+  }
+
+  async getPoolAum(): Promise<number> {
+    let res = 0;
+    for (const asset of ['USDC', 'USDT', 'WBTC', 'WETH', 'WSOL']) {
+      res += await this.getCustodyAum(
+        this.app.jpAccounts.dependentAccounts.get(asset),
+        'Min',
+      );
+    }
+    return res;
   }
 
   async processIx(

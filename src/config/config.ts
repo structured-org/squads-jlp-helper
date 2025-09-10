@@ -111,7 +111,7 @@ export type SquadsMultisigApp = {
   vaultPda: web3.PublicKey;
 };
 
-export type JupiterHelperDepenedentAccounts = {
+export type JupiterPerpetualsDepenedentAccounts = {
   custody: web3.PublicKey;
   custodyDovesPriceAccount: web3.PublicKey;
   custodyPythnetPriceAccount: web3.PublicKey;
@@ -151,7 +151,7 @@ export type JupiterHelperApp = {
     pool: web3.PublicKey;
     eventAuthority: web3.PublicKey;
     program: web3.PublicKey;
-    dependentAccounts: Map<string, JupiterHelperDepenedentAccounts>;
+    dependentAccounts: Map<string, JupiterPerpetualsDepenedentAccounts>;
     remainingAccounts: Array<web3.PublicKey>;
   };
   altAccounts: Array<web3.PublicKey>;
