@@ -108,7 +108,7 @@ export class JupiterHelper {
     const swapMultiplier = custody.isStable
       ? new Decimal(pool.fees.stableSwapMultiplier.toNumber())
       : new Decimal(pool.fees.swapMultiplier.toNumber());
-    const poolAumUsdPreCalc = await this.getPoolAum();
+    const poolAumUsdPreCalc = await this.getPoolAum('Min');
 
     const custodyAum = await this.getCustodyAum(
       jupiterPerpetualsDepenedentAccounts,
@@ -197,12 +197,12 @@ export class JupiterHelper {
     return tokenAmountsIn;
   }
 
-  async getPoolAum(): Promise<number> {
+  async getPoolAum(mode: PriceCalcMode): Promise<number> {
     let res = 0;
     for (const asset of ['USDC', 'USDT', 'WBTC', 'WETH', 'WSOL']) {
       res += await this.getCustodyAum(
         this.app.jpAccounts.dependentAccounts.get(asset),
-        'Min',
+        mode,
       );
     }
     return res;

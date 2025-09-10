@@ -32,33 +32,37 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
     )
     .action(async (options) => {
       await createJupiterHelperAltTableIfNotExist(alt, jupiterHelper.app);
-      console.log(
-        await jupiterHelper.getOptimalAmounts(
-          options.safetyMargin,
-          options.amountToProcess,
-          options.assetOut,
-        ),
+      const optimalAmounts = await jupiterHelper.getOptimalAmounts(
+        options.safetyMargin,
+        options.amountToProcess,
+        options.assetOut,
       );
-      // const processIx = await jupiterHelper.processIx(
-      //   coin.amount.toNumber(),
-      //   options.assetOut,
-      //   'withdrawer',
-      // );
-      // const messageV0 = await compileTransactionMessageWithAlt(
-      //   baseApp.anchorProvider,
-      //   [
-      //     ComputeBudgetProgram.setComputeUnitLimit({
-      //       units: 1_400_000,
-      //     }),
-      //     processIx,
-      //   ],
-      //   baseApp.keypair.publicKey,
-      //   jupiterHelper.app.altTable,
-      // );
-      // const tx = new web3.VersionedTransaction(messageV0);
-      // const res =
-      //   await baseApp.anchorProvider.connection.simulateTransaction(tx);
-      // console.log(res);
+      const processIxs: Array<web3.TransactionInstruction> = [];
+      for (const optimalAmount of optimalAmounts) {
+        const processIx = await jupiterHelper.processIx(
+          optimalAmount,
+          options.assetOut,
+          'withdrawer',
+        );
+        processIxs.push(processIx);
+      }
+      const messageV0 = await compileTransactionMessageWithAlt(
+        baseApp.anchorProvider,
+        [
+          ComputeBudgetProgram.setComputeUnitLimit({
+            units: 1_400_000,
+          }),
+          ...processIxs,
+        ],
+        baseApp.keypair.publicKey,
+        jupiterHelper.app.altTable,
+      );
+      const tx = new web3.VersionedTransaction(messageV0);
+      logger.info(`tx length -- ${tx.serialize().length}`);
+
+      const res =
+        await baseApp.anchorProvider.connection.simulateTransaction(tx);
+      console.log(res);
       // const res = await simulateAndBroadcastVersionedTx(
       //   baseApp.anchorProvider,
       //   tx,
