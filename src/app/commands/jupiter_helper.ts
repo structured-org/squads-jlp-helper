@@ -5,10 +5,7 @@ import { BaseApp } from '@config/config';
 import { JupiterHelper } from '@lib/jupiter_helper';
 import { JupiterHelperCommandValidator } from '@lib/validator';
 import { web3 } from '@project-serum/anchor';
-import {
-  compileTransactionMessageWithAlt,
-  simulateAndBroadcastVersionedTx,
-} from '@lib/helpers';
+import { compileTransactionMessageWithAlt } from '@lib/helpers';
 import { ComputeBudgetProgram } from '@solana/web3.js';
 
 export function registerJupiterHelperProcessWithdrawCommand(
@@ -53,7 +50,6 @@ export function registerJupiterHelperProcessWithdrawCommand(
         jupiterHelper.app.altTable,
       );
       const tx = new web3.VersionedTransaction(messageV0);
-      console.log(tx.serialize().length);
       const res =
         await baseApp.anchorProvider.connection.simulateTransaction(tx);
       console.log(res);

@@ -5,7 +5,7 @@ squads_multisig:
 
 jupiter_helper:
   program: DpNGLF1Z7Z6MViB2STsDB18VbxbkviPmidpjeUB8pGjG
-  alt_table: 9W3zRMtgUdxS4Bg8nm2Q7CC55TujvEyLDoYVYBPsZCEX
+  alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3
 
   jh_accounts:
     - coin: USDC
@@ -77,6 +77,8 @@ jupiter_helper:
       - HT2PLQBcG5EiCcNSaMHAjSgd9F98ecpATbk4Sk5oYuM
 
   alt_accounts:
+    - EsPuPxYBCwN8tqPr4DvHQ9UD4hbVWUA1ojD8GPvSQsR4
+
     # Programs
     - ComputeBudget111111111111111111111111111111
     - ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL
