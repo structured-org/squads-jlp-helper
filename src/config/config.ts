@@ -10,6 +10,7 @@ type ConfigFile = {
   };
   jupiter_helper: {
     program: string;
+    alt_table?: string;
     jh_accounts: Array<{
       coin: string;
       mode: 'withdrawer' | 'provider';
@@ -106,6 +107,7 @@ export type SquadsMultisigApp = {
 
 export type JupiterHelperApp = {
   program: web3.PublicKey;
+  altTable?: web3.PublicKey;
   jhAccounts: Map<
     string,
     {
@@ -245,6 +247,9 @@ export function getJupiterHelperAppFromConfig(
 ): JupiterHelperApp {
   return {
     program: new web3.PublicKey(config.jupiter_helper.program),
+    altTable: config.jupiter_helper.alt_table
+      ? new web3.PublicKey(config.jupiter_helper.alt_table)
+      : undefined,
     mints: {
       JLP: new web3.PublicKey(config.jupiter_helper.mints.JLP),
       USDC: new web3.PublicKey(config.jupiter_helper.mints.USDC),
