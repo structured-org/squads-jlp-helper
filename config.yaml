@@ -9,10 +9,14 @@ jupiter_helper:
 
   jh_accounts:
     - coin: USDC
-      mode: withdrawer
-      config: 4YLNQxAfBpKfnqYC3h4nL9UX4XZHMur8ht4vr9JgR3dx
-      vault: 3d11rKkTxWwWFuePhuQLJZbDSqBMXBNPBdCkfVTRjg7X
-      ownership: 3vovo9Y93eA45BWDUcX3MFiJjk8RAxq6KCg7u696mEKj
+      withdrawer:
+        config: 4YLNQxAfBpKfnqYC3h4nL9UX4XZHMur8ht4vr9JgR3dx
+        vault: 3d11rKkTxWwWFuePhuQLJZbDSqBMXBNPBdCkfVTRjg7X
+        ownership: 3vovo9Y93eA45BWDUcX3MFiJjk8RAxq6KCg7u696mEKj
+  #   provider:
+  #     config:
+  #     vault:
+  #     ownership:
 
   mints:
     JLP: 27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4

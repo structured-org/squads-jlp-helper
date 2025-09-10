@@ -13,10 +13,16 @@ type ConfigFile = {
     alt_table?: string;
     jh_accounts: Array<{
       coin: string;
-      mode: 'withdrawer' | 'provider';
-      config: string;
-      vault: string;
-      ownership: string;
+      withdrawer?: {
+        config: string;
+        vault: string;
+        ownership: string;
+      };
+      provider?: {
+        config: string;
+        vault: string;
+        ownership: string;
+      };
     }>;
     mints: {
       JLP: string;
@@ -111,10 +117,16 @@ export type JupiterHelperApp = {
   jhAccounts: Map<
     string,
     {
-      mode: 'withdrawer' | 'provider';
-      config: web3.PublicKey;
-      vault: web3.PublicKey;
-      ownership: web3.PublicKey;
+      withdrawer?: {
+        config: web3.PublicKey;
+        vault: web3.PublicKey;
+        ownership: web3.PublicKey;
+      };
+      provider?: {
+        config: web3.PublicKey;
+        vault: web3.PublicKey;
+        ownership: web3.PublicKey;
+      };
     }
   >;
   mints: {
@@ -262,10 +274,20 @@ export function getJupiterHelperAppFromConfig(
       config.jupiter_helper.jh_accounts.map((asset) => [
         asset.coin,
         {
-          mode: asset.mode,
-          config: new web3.PublicKey(asset.config),
-          vault: new web3.PublicKey(asset.vault),
-          ownership: new web3.PublicKey(asset.ownership),
+          withdrawer: asset.withdrawer
+            ? {
+                config: new web3.PublicKey(asset.withdrawer.config),
+                vault: new web3.PublicKey(asset.withdrawer.vault),
+                ownership: new web3.PublicKey(asset.withdrawer.ownership),
+              }
+            : undefined,
+          provider: asset.provider
+            ? {
+                config: new web3.PublicKey(asset.provider.config),
+                vault: new web3.PublicKey(asset.provider.vault),
+                ownership: new web3.PublicKey(asset.provider.ownership),
+              }
+            : undefined,
         },
       ]),
     ),

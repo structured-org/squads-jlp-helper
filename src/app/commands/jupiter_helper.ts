@@ -30,7 +30,11 @@ export function registerJupiterHelperProcessWithdrawCommand(
       const coin = jupiterHelperCommandValidator.validateJlpAmount(
         options.lpAmountIn,
       );
-
+      const processIx = await jupiterHelper.processIx(
+        coin.amount.toNumber(),
+        options.assetOut,
+        'withdrawer',
+      );
       console.log(coin);
     });
 }
