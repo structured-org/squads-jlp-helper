@@ -37,13 +37,14 @@ export async function compileTransactionMessageWithAlt(
   provider: AnchorProvider,
   instructions: Array<web3.TransactionInstruction>,
   sender: web3.PublicKey,
-  alt: web3.AddressLookupTableAccount,
+  altKey: web3.PublicKey,
 ): Promise<web3.MessageV0> {
+  const altData = await provider.connection.getAddressLookupTable(altKey);
   return new TransactionMessage({
     payerKey: sender,
     recentBlockhash: (await provider.connection.getLatestBlockhash()).blockhash,
     instructions: instructions,
-  }).compileToV0Message([alt]);
+  }).compileToV0Message([altData.value]);
 }
 
 export async function simulateAndBroadcastVersionedTx(
