@@ -1,47 +1,61 @@
-import { web3 } from '@project-serum/anchor';
+import { web3, AnchorProvider } from '@project-serum/anchor';
 import { Logger } from 'pino';
-import { type BaseApp } from '@config/config';
 import { simulateAndBroadcast } from '@lib/helpers';
 
 type HasAlt = { altAccounts: Array<web3.PublicKey>; altTable?: web3.PublicKey };
 
 export class Alt {
-  private logger: Logger;
-  private baseApp: BaseApp;
-
-  constructor(logger: Logger, baseApp: BaseApp) {
+  constructor(
+    private readonly logger: Logger,
+    private readonly provider: AnchorProvider,
+  ) {
     this.logger = logger;
-    this.baseApp = baseApp;
   }
 
-  private async useAltRawInstruction(): Promise<
-    [web3.TransactionInstruction, web3.PublicKey]
-  > {
+  private async createAltIx(
+    keypair: web3.Keypair,
+  ): Promise<[web3.TransactionInstruction, web3.PublicKey]> {
     return web3.AddressLookupTableProgram.createLookupTable({
-      authority: this.baseApp.keypair.publicKey,
-      payer: this.baseApp.keypair.publicKey,
-      recentSlot: await this.baseApp.anchorProvider.connection.getSlot(),
+      authority: keypair.publicKey,
+      payer: keypair.publicKey,
+      recentSlot: (
+        await this.provider.connection.getBlocks(
+          (await this.provider.connection.getSlot()) - 100,
+          undefined,
+          'confirmed',
+        )
+      )[0],
     });
   }
 
-  private registerAltRawInstruction(
+  private extendIxsList(
+    keypair: web3.Keypair,
     altAddress: web3.PublicKey,
     accounts: Array<web3.PublicKey>,
-  ): web3.TransactionInstruction {
-    return web3.AddressLookupTableProgram.extendLookupTable({
-      payer: this.baseApp.keypair.publicKey,
-      authority: this.baseApp.keypair.publicKey,
-      lookupTable: altAddress,
-      addresses: accounts,
-    });
+  ): Array<web3.TransactionInstruction> {
+    const extendIxs: Array<web3.TransactionInstruction> = [];
+    for (let i = 0; i < accounts.length; i += 16) {
+      extendIxs.push(
+        web3.AddressLookupTableProgram.extendLookupTable({
+          payer: keypair.publicKey,
+          authority: keypair.publicKey,
+          lookupTable: altAddress,
+          addresses: accounts.slice(i, i + 16),
+        }),
+      );
+    }
+    return extendIxs;
   }
 
-  async createTable(altAccounts: Array<web3.PublicKey>): Promise<{
-    tx: web3.Transaction;
+  private async createTable(
+    keypair: web3.Keypair,
+    altAccounts: Array<web3.PublicKey>,
+  ): Promise<{
+    createIx: web3.TransactionInstruction;
+    extendIxs: Array<web3.TransactionInstruction>;
     lookupTableAddress: web3.PublicKey;
   }> {
-    const [lookupTableIx, lookupTableAddress] =
-      await this.useAltRawInstruction();
+    const [createIx, lookupTableAddress] = await this.createAltIx(keypair);
 
     this.logger.info(`ALT address -- ${lookupTableAddress}`);
     for (let i = 1; i <= altAccounts.length; i += 1) {
@@ -50,41 +64,61 @@ export class Alt {
       );
     }
 
-    const registerNewAddressesIx = this.registerAltRawInstruction(
+    const extendIxs = this.extendIxsList(
+      keypair,
       lookupTableAddress,
       altAccounts,
     );
     return {
-      tx: new web3.Transaction().add(lookupTableIx, registerNewAddressesIx),
+      createIx: createIx,
+      extendIxs: extendIxs,
       lookupTableAddress: lookupTableAddress,
     };
   }
 
-  private async createAndFillAlt<T extends HasAlt>(instance: T, ty: string) {
-    const createTable = await this.createTable(instance.altAccounts);
-    instance.altTable = new web3.PublicKey(
-      createTable.lookupTableAddress.toBase58(),
-    );
+  private async createAndFillAlt<T extends HasAlt>(
+    keypair: web3.Keypair,
+    instance: T,
+    ty: string,
+  ): Promise<web3.PublicKey> {
+    const createTable = await this.createTable(keypair, instance.altAccounts);
     await simulateAndBroadcast(
-      this.baseApp.anchorProvider,
-      createTable.tx,
+      this.provider,
+      new web3.Transaction().add(
+        createTable.createIx,
+        createTable.extendIxs.pop(),
+      ),
       `${ty} ALT Creation`,
       this.logger,
-      this.baseApp.keypair,
+      keypair,
     );
+    for (const [i, extendIx] of createTable.extendIxs.entries()) {
+      await simulateAndBroadcast(
+        this.provider,
+        new web3.Transaction().add(extendIx),
+        `${ty} ALT Extension (${i + 1}/${createTable.extendIxs.length})`,
+        this.logger,
+        keypair,
+      );
+    }
+    return createTable.lookupTableAddress;
   }
 
-  async createAndFillAltIfNecessary<T extends HasAlt>(instance: T, ty: string) {
+  async createAndFillAltIfNecessary<T extends HasAlt>(
+    keypair: web3.Keypair,
+    instance: T,
+    ty: string,
+  ): Promise<web3.PublicKey> {
     if (instance.altTable === undefined) {
-      await this.createAndFillAlt(instance, ty);
+      return await this.createAndFillAlt(keypair, instance, ty);
     } else {
       const lookupTableAccount = (
-        await this.baseApp.anchorProvider.connection.getAddressLookupTable(
-          new web3.PublicKey(instance.altTable!),
+        await this.provider.connection.getAddressLookupTable(
+          new web3.PublicKey(instance.altTable),
         )
       ).value;
       let expectedAccounts = [...instance.altAccounts];
-      this.logger.info(`${ty} ALT Table Defined -- ${instance.altTable!}`);
+      this.logger.info(`${ty} ALT Table Defined -- ${instance.altTable}`);
 
       for (let i = 1; i <= lookupTableAccount.state.addresses.length; i += 1) {
         const lookupAddress = lookupTableAccount.state.addresses[i - 1];
@@ -99,13 +133,13 @@ export class Alt {
         for (const remainingAccount of expectedAccounts) {
           this.logger.warn(`${ty} ALT missing -- ${remainingAccount}`);
         }
-        this.logger.info(`${ty} Creating a new ALT`);
-        await this.createAndFillAlt(instance, ty);
-        this.logger.info(`${ty} Using new ALT -- ${instance.altTable!}`);
+        this.logger.info(`${ty} Creating a new ALT`); // Don't modify the existing ALT
+        const newAlt = await this.createAndFillAlt(keypair, instance, ty);
+        this.logger.info(`${ty} Using new ALT -- ${newAlt}`);
+        return newAlt;
+      } else {
+        return instance.altTable;
       }
     }
   }
 }
-
-export { createJupiterPerpsAltTableIfNotExist } from './jupiter_perps';
-export { createWormholeAltTablesIfNotExist } from './wormhole';
