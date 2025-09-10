@@ -4,6 +4,7 @@ import {
   registerAddLiquidityCommand,
   registerBatchAddLiquidityCommand,
 } from './commands/add_liquidity';
+import { registerJupiterHelperProcessCommand } from './commands/jupiter_helper';
 import { registerRemoveLiquidityCommand } from './commands/remove_liquidity';
 import {
   registerActivateProposalCommand,
@@ -28,6 +29,7 @@ import { JupiterPerps } from '@lib/jlp';
 import { WormholeEthereum } from '@lib/wormhole';
 import { Alt } from '@lib/alt';
 import { MultisigProvider } from '@lib/multisig_provider';
+import { JupiterHelper } from '@lib/jupiter_helper';
 
 const logger = getLogger();
 const config = parseConfig(process.env.CONFIG_PATH);
@@ -37,10 +39,10 @@ const jupiterPerpsApp = getJupiterPerpsAppFromConfig(config);
 const squadsMultisigApp = getSquadsMultisigAppFromConfig(config);
 const wormholeApp = getWormholeAppfromConfig(config);
 const jupiterHelperApp = getJupiterHelperAppFromConfig(config);
-console.log(jupiterHelperApp);
 
 const commandValidator = new CommandValidator(logger, jupiterPerpsApp);
 
+const jupiterHelper = new JupiterHelper(logger, baseApp, jupiterHelperApp);
 const jupiterPerps = new JupiterPerps(logger, baseApp, jupiterPerpsApp);
 const squadsMultisig = new SquadsMultisig(logger, baseApp, squadsMultisigApp);
 const alt = new Alt(logger, baseApp);
@@ -100,6 +102,13 @@ registerWormholeEthereumCommand(
   baseApp,
   wormholeEthereum,
   multisigProvider,
+);
+registerJupiterHelperProcessCommand(
+  alt,
+  program,
+  logger,
+  baseApp,
+  jupiterHelper,
 );
 
 function main() {

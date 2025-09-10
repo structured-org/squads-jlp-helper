@@ -148,3 +148,4 @@ export class Alt {
 
 export { createJupiterPerpsAltTableIfNotExist } from './jupiter_perps';
 export { createWormholeAltTablesIfNotExist } from './wormhole';
+export { createJupiterHelperAltTableIfNotExist } from './jupiter_helper';
