@@ -18,7 +18,7 @@ export function registerJupiterHelperProcessWithdrawCommand(
     .description('Call process method on the Jupiter Helper')
     .requiredOption(
       '--amount <amount>',
-      'Amount of tokens we have to provide/withdraw (e.g. --amount 123USDC)',
+      'Amount of tokens we have to withdraw (e.g. --amount 123JLP)',
     )
     .action(async (options) => {
       await createJupiterHelperAltTableIfNotExist(alt, jupiterHelper.app);
