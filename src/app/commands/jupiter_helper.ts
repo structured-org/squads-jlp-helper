@@ -37,6 +37,14 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
         options.amountToProcess,
         options.assetOut,
       );
+      logger.info(`optimal amounts -- ${optimalAmounts}`);
+      logger.info(`optimal amounts length -- ${optimalAmounts.length}`);
+
+      if (optimalAmounts.length > 5) {
+        logger.error(`optimalAmounts length shouldn't be greater than 5`);
+        process.exit(-1);
+      }
+
       const processIxs: Array<web3.TransactionInstruction> = [];
       for (const optimalAmount of optimalAmounts) {
         const processIx = await jupiterHelper.processIx(

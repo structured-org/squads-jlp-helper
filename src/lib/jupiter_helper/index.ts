@@ -14,11 +14,28 @@ import {
 import Decimal from 'decimal.js';
 
 export class JupiterHelper {
+  private perpsProgramInstance: Program;
+  private helperProgramInstance: CoralProgram;
+
   constructor(
     private logger: Logger,
     private baseApp: BaseApp,
     private jupiterHelperApp: JupiterHelperApp,
   ) {}
+
+  async init() {
+    this.perpsProgramInstance = new Program(
+      await Program.fetchIdl(
+        this.app.jpAccounts.program,
+        this.baseApp.anchorProvider,
+      ),
+      this.app.jpAccounts.program,
+      this.baseApp.anchorProvider,
+    );
+    this.helperProgramInstance = new CoralProgram(
+      await Program.fetchIdl(this.app.program, this.baseApp.anchorProvider),
+    );
+  }
 
   get app(): JupiterHelperApp {
     return this.jupiterHelperApp;
@@ -80,15 +97,7 @@ export class JupiterHelper {
     }
     const jupiterPerpetualsDepenedentAccounts: JupiterPerpetualsDepenedentAccounts =
       this.app.jpAccounts.dependentAccounts.get(assetOut);
-    const perpsProgramInstance = new Program(
-      await Program.fetchIdl(
-        this.app.jpAccounts.program,
-        this.baseApp.anchorProvider,
-      ),
-      this.app.jpAccounts.program,
-      this.baseApp.anchorProvider,
-    );
-    const pool = perpsProgramInstance.coder.accounts.decode(
+    const pool = this.perpsProgramInstance.coder.accounts.decode(
       'Pool',
       (
         await this.baseApp.anchorProvider.connection.getAccountInfo(
@@ -96,7 +105,7 @@ export class JupiterHelper {
         )
       ).data,
     );
-    const custody = perpsProgramInstance.coder.accounts.decode(
+    const custody = this.perpsProgramInstance.coder.accounts.decode(
       'Custody',
       (
         await this.baseApp.anchorProvider.connection.getAccountInfo(
@@ -213,13 +222,10 @@ export class JupiterHelper {
     denomOut: string,
     mode: 'withdrawer' | 'provider',
   ): Promise<web3.TransactionInstruction> {
-    const program = new CoralProgram(
-      await Program.fetchIdl(this.app.program, this.baseApp.anchorProvider),
-    );
     const jpDependentAccounts =
       this.app.jpAccounts.dependentAccounts.get(denomOut);
     const jhDependentAccounts = this.app.jhAccounts.get(denomOut);
-    const helperConfigData = program.coder.accounts.decode(
+    const helperConfigData = this.helperProgramInstance.coder.accounts.decode(
       'helperConfig',
       (
         await this.baseApp.anchorProvider.connection.getAccountInfo(
@@ -231,7 +237,7 @@ export class JupiterHelper {
     );
 
     if (mode === 'withdrawer') {
-      return await program.methods
+      return await this.helperProgramInstance.methods
         .process({
           tokenAmountIn: new BN(lpAmountIn),
         })

@@ -121,7 +121,8 @@ registerJupiterHelperProcessOptimalWithdrawsCommand(
   jupiterHelper,
 );
 
-function main() {
+async function main() {
+  await jupiterHelper.init();
   program.parse();
 }
 
