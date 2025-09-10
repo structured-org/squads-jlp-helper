@@ -1,11 +1,16 @@
 import { Logger } from 'pino';
-import { BaseApp, JupiterHelperApp } from '@config/config';
+import {
+  BaseApp,
+  JupiterHelperApp,
+  JupiterHelperDepenedentAccounts,
+} from '@config/config';
 import { BN, Program, web3 } from '@project-serum/anchor';
 import { Program as CoralProgram } from '@coral-xyz/anchor';
+import { getAssociatedTokenAddressSync } from '@solana/spl-token';
 import {
-  getAssociatedTokenAddress,
-  getAssociatedTokenAddressSync,
-} from '@solana/spl-token';
+  getAssetUnderManagementUsdForCustody,
+  PriceCalcMode,
+} from '@lib/jupiter_helper/internal';
 
 export class JupiterHelper {
   constructor(
@@ -16,6 +21,52 @@ export class JupiterHelper {
 
   get app(): JupiterHelperApp {
     return this.jupiterHelperApp;
+  }
+
+  async getCustodyAum(
+    jupiterHelperDependentAccounts: JupiterHelperDepenedentAccounts,
+    mode: PriceCalcMode,
+  ): Promise<number> {
+    const perpsProgramInstance = new Program(
+      await Program.fetchIdl(
+        this.app.jpAccounts.program,
+        this.baseApp.anchorProvider,
+      ),
+      this.app.jpAccounts.program,
+      this.baseApp.anchorProvider,
+    );
+    const custody = perpsProgramInstance.coder.accounts.decode(
+      'Custody',
+      (
+        await this.baseApp.anchorProvider.connection.getAccountInfo(
+          jupiterHelperDependentAccounts.custody,
+        )
+      ).data,
+    );
+    const dovesProgramInstance = new Program(
+      await Program.fetchIdl(
+        'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
+        this.baseApp.anchorProvider,
+      ),
+      this.app.jpAccounts.program,
+      this.baseApp.anchorProvider,
+    );
+    const priceFeed = dovesProgramInstance.coder.accounts.decode(
+      'AgPriceFeed',
+      (
+        await this.baseApp.anchorProvider.connection.getAccountInfo(
+          jupiterHelperDependentAccounts.custodyDovesPriceAccount,
+        )
+      ).data,
+    );
+    return getAssetUnderManagementUsdForCustody(
+      custody,
+      {
+        price: priceFeed.price,
+        exponent: priceFeed['expo'],
+      },
+      mode,
+    ).toNumber();
   }
 
   async processIx(

@@ -4,7 +4,7 @@ import {
   registerAddLiquidityCommand,
   registerBatchAddLiquidityCommand,
 } from './commands/add_liquidity';
-import { registerJupiterHelperProcessWithdrawCommand } from './commands/jupiter_helper';
+import { registerJupiterHelperProcessOptimalWithdrawsCommand } from './commands/jupiter_helper';
 import { registerRemoveLiquidityCommand } from './commands/remove_liquidity';
 import {
   registerActivateProposalCommand,
@@ -113,12 +113,11 @@ registerWormholeEthereumCommand(
   wormholeEthereum,
   multisigProvider,
 );
-registerJupiterHelperProcessWithdrawCommand(
+registerJupiterHelperProcessOptimalWithdrawsCommand(
   alt,
   program,
   logger,
   baseApp,
-  jupiterHelperCommandValidator,
   jupiterHelper,
 );
 
