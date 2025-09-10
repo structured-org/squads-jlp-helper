@@ -1,5 +1,6 @@
 import { Logger } from 'pino';
 import { BaseApp, JupiterHelperApp } from '@config/config';
+import { web3 } from '@project-serum/anchor';
 
 export class JupiterHelper {
   constructor(
@@ -11,4 +12,9 @@ export class JupiterHelper {
   get app(): JupiterHelperApp {
     return this.jupiterHelperApp;
   }
+
+  // async processIx(
+  //   lpAmountIn: string,
+  //   denomOut: string,
+  // ): Promise<web3.TransactionInstruction> {}
 }

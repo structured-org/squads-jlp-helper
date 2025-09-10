@@ -41,15 +41,40 @@ export class JupiterHelperCommandValidator {
     };
   }
 
+  validateAssetOut(denomOut: string) {
+    const tokens = denomOut.match(/^([A-Z]+)$/);
+    if (tokens.length === 0) {
+      throw new Error(`--assetOut: Invalid format provided -- ${denomOut}`);
+    }
+    const [, denom] = tokens;
+    if (denom === JLP_DENOM) {
+      this.logger.error(
+        `--assetOut: Amount should not have a JLP denom -- ${denom}`,
+      );
+      process.exit(-1);
+    }
+    if (
+      Object.keys(this.jupiterHelperApp.mints).find((key) => key === denom) ===
+      undefined
+    ) {
+      this.logger.error(
+        `--assetOut: No such a mint described in the config -- ${denom}`,
+      );
+      process.exit(-1);
+    }
+  }
+
   validateJlpAmount(inputAsset: string): Coin {
     const tokens = inputAsset.match(/^(\d+(?:\.\d+)?)([A-Z]+)$/);
     if (tokens.length === 0) {
-      throw new Error(`--amount: Invalid format provided -- ${inputAsset}`);
+      throw new Error(`--lpTokenIn: Invalid format provided -- ${inputAsset}`);
     }
 
     const [, amount, denom] = tokens;
     if (denom !== JLP_DENOM) {
-      this.logger.error(`--amount: Amount should have a JLP denom -- ${denom}`);
+      this.logger.error(
+        `--lpTokenIn: Amount should have a JLP denom -- ${denom}`,
+      );
       process.exit(-1);
     }
     return {

@@ -17,14 +17,20 @@ export function registerJupiterHelperProcessWithdrawCommand(
     .command('jupiter-helper-process-withdraw')
     .description('Call process method on the Jupiter Helper')
     .requiredOption(
-      '--amount <amount>',
-      'Amount of tokens we have to withdraw (e.g. --amount 123JLP)',
+      '--lpAmountIn <lpAmountIn>',
+      'Amount of tokens we have to withdraw (e.g. --lpAmountIn 123JLP)',
+    )
+    .requiredOption(
+      '--assetOut <assetOut>',
+      'Denom of the token that we expect to get back',
     )
     .action(async (options) => {
       await createJupiterHelperAltTableIfNotExist(alt, jupiterHelper.app);
+      jupiterHelperCommandValidator.validateAssetOut(options.assetOut);
       const coin = jupiterHelperCommandValidator.validateJlpAmount(
-        options.amount,
+        options.lpAmountIn,
       );
+
       console.log(coin);
     });
 }
