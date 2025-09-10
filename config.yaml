@@ -3,6 +3,122 @@ squads_multisig:
   multisig_address: JDotNUehNc6TfeMsH9XMu3D5xgSisvd6Ld3R24bW43eR
   vault_pda: GMAyWb5MT7C1Hozr7apvxDNGzv89jye4ZdD6cZ9zR5ub
 
+jupiter_helper:
+  program: DpNGLF1Z7Z6MViB2STsDB18VbxbkviPmidpjeUB8pGjG
+  #  alt_table: 7tiwR2E63Rzr8pk3JEgvvhTzW2xgvJSv5Ja2YiaKWHoM
+
+  jh_accounts:
+    - coin: USDC
+      mode: withdrawer
+      config: 4YLNQxAfBpKfnqYC3h4nL9UX4XZHMur8ht4vr9JgR3dx
+      vault: 3d11rKkTxWwWFuePhuQLJZbDSqBMXBNPBdCkfVTRjg7X
+      ownership: 3vovo9Y93eA45BWDUcX3MFiJjk8RAxq6KCg7u696mEKj
+
+  mints:
+    JLP: 27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4
+    WBTC: 3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh
+    USDC: EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+    USDT: Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB
+    WSOL: So11111111111111111111111111111111111111112
+    WETH: 7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs
+  
+  jp_accounts:
+    lp_token_mint: 27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4
+    transfer_authority: AVzP2GeRmqGphJsMxWoqjpUifPpCret7LqWhD8NWQK49
+    perpetuals: H4ND9aYttUVLFmNypZqLjZ52FYiGvdEB45GmwNoKEjTj
+    pool: 5BUwFW4nRbftYTDMbgxykoFWqWHPzahFSNAaaaJtVKsq
+    event_authority: 37hJBDnntwqhGbK7L6M1bLyvccj4u55CCUiLPdYkiqBN
+    program: PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu
+    dependent_accounts:
+      - coin: WBTC
+        custody: 5Pv3gM9JrFFH883SWAhvJC9RPYmo8UNxuFtv5bMMALkm
+        custodyDovesPriceAccount: hUqAT1KQ7eW1i6Csp9CXYtpPfSAvi835V7wKi5fRfmC
+        custodyPythnetPriceAccount: 4cSM2e6rvbGQUFiJbqytoVMi5GgghSMr8LwVrT9VPSPo
+        custodyTokenAccount: FgpXg2J3TzSs7w3WGYYE7aWePdrxBVLCXSxmAKnCZNtZ
+      - coin: WSOL
+        custody: 7xS2gz2bTp3fwCC7knJvUWTEU9Tycczu6VhJYKgi1wdz
+        custody_doves_price_account: FYq2BWQ1V5P1WFBqr3qB2Kb5yHVvSv7upzKodgQE5zXh
+        custody_pythnet_price_account: 7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE
+        custody_token_account: BUvduFTd2sWFagCunBPLupG8fBTJqweLw9DuhruNFSCm
+      - coin: WETH
+        custody: AQCGyheWPLeo6Qp9WpYS9m3Qj479t7R636N9ey1rEjEn
+        custody_doves_price_account: AFZnHPzy4mvVCffrVwhewHbFc93uTHvDSFrVH7GtfXF1
+        custody_pythnet_price_account: 42amVS4KgzR9rA28tkVYqVXjq9Qa8dcZQMbH5EYFX6XC
+        custody_token_account: Bgarxg65CEjN3kosjCW5Du3wEqvV3dpCGDR3a2HRQsYJ
+      - coin: USDC
+        custody: G18jKKXQwBbrHeiK3C9MRXhkHsLHf7XgCSisykV46EZa
+        custody_doves_price_account: 6Jp2xZUTWdDD2ZyUPRzeMdc6AFQ5K3pFgZxk2EijfjnM
+        custody_pythnet_price_account: Dpw1EAVrSB1ibxiDQyTAW6Zip3J4Btk2x4SgApQCeFbX
+        custody_token_account: WzWUoCmtVv7eqAbU3BfKPU3fhLP6CXR8NCJH78UK9VS
+      - coin: USDT
+        custody: 4vkNeXiYEUizLdrpdPS1eC2mccyM4NUPRtERrk6ZETkk
+        custody_doves_price_account: Fgc93D641F8N2d1xLjQ4jmShuD3GE3BsCXA56KBQbF5u
+        custody_pythnet_price_account: HT2PLQBcG5EiCcNSaMHAjSgd9F98ecpATbk4Sk5oYuM
+        custody_token_account: Gex24YznvguMad1mBzTQ7a64U1CJy59gvsStQmNnnwAd
+    remaining_accounts:
+      - 7xS2gz2bTp3fwCC7knJvUWTEU9Tycczu6VhJYKgi1wdz
+      - AQCGyheWPLeo6Qp9WpYS9m3Qj479t7R636N9ey1rEjEn
+      - 5Pv3gM9JrFFH883SWAhvJC9RPYmo8UNxuFtv5bMMALkm
+      - G18jKKXQwBbrHeiK3C9MRXhkHsLHf7XgCSisykV46EZa
+      - 4vkNeXiYEUizLdrpdPS1eC2mccyM4NUPRtERrk6ZETkk
+      - FYq2BWQ1V5P1WFBqr3qB2Kb5yHVvSv7upzKodgQE5zXh
+      - AFZnHPzy4mvVCffrVwhewHbFc93uTHvDSFrVH7GtfXF1
+      - hUqAT1KQ7eW1i6Csp9CXYtpPfSAvi835V7wKi5fRfmC
+      - 6Jp2xZUTWdDD2ZyUPRzeMdc6AFQ5K3pFgZxk2EijfjnM
+      - Fgc93D641F8N2d1xLjQ4jmShuD3GE3BsCXA56KBQbF5u
+      - 7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE
+      - 42amVS4KgzR9rA28tkVYqVXjq9Qa8dcZQMbH5EYFX6XC
+      - 4cSM2e6rvbGQUFiJbqytoVMi5GgghSMr8LwVrT9VPSPo
+      - Dpw1EAVrSB1ibxiDQyTAW6Zip3J4Btk2x4SgApQCeFbX
+      - HT2PLQBcG5EiCcNSaMHAjSgd9F98ecpATbk4Sk5oYuM
+
+  alt_accounts:
+    - DpNGLF1Z7Z6MViB2STsDB18VbxbkviPmidpjeUB8pGjG
+
+    # Jupiter Helper (USDC Withdrawer)
+    - 4YLNQxAfBpKfnqYC3h4nL9UX4XZHMur8ht4vr9JgR3dx
+    - 3d11rKkTxWwWFuePhuQLJZbDSqBMXBNPBdCkfVTRjg7X
+    - 3vovo9Y93eA45BWDUcX3MFiJjk8RAxq6KCg7u696mEKj
+
+    # Mints
+    - 27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4
+    - 3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh
+    - EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v
+    - Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB
+    - So11111111111111111111111111111111111111112
+    - 7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs
+
+    # Independent accounts
+    - AVzP2GeRmqGphJsMxWoqjpUifPpCret7LqWhD8NWQK49
+    - H4ND9aYttUVLFmNypZqLjZ52FYiGvdEB45GmwNoKEjTj
+    - 5BUwFW4nRbftYTDMbgxykoFWqWHPzahFSNAaaaJtVKsq
+    - 37hJBDnntwqhGbK7L6M1bLyvccj4u55CCUiLPdYkiqBN
+    - PERPHjGBqRHArX4DySjwM6UJHiR3sWAatqfdBS2qQJu
+
+    # Custody tokens
+    - FgpXg2J3TzSs7w3WGYYE7aWePdrxBVLCXSxmAKnCZNtZ
+    - BUvduFTd2sWFagCunBPLupG8fBTJqweLw9DuhruNFSCm
+    - Bgarxg65CEjN3kosjCW5Du3wEqvV3dpCGDR3a2HRQsYJ
+    - WzWUoCmtVv7eqAbU3BfKPU3fhLP6CXR8NCJH78UK9VS
+    - Gex24YznvguMad1mBzTQ7a64U1CJy59gvsStQmNnnwAd
+
+    # Remaining accounts (doves, pythnet, custody)
+    - 7xS2gz2bTp3fwCC7knJvUWTEU9Tycczu6VhJYKgi1wdz
+    - AQCGyheWPLeo6Qp9WpYS9m3Qj479t7R636N9ey1rEjEn
+    - 5Pv3gM9JrFFH883SWAhvJC9RPYmo8UNxuFtv5bMMALkm
+    - G18jKKXQwBbrHeiK3C9MRXhkHsLHf7XgCSisykV46EZa
+    - 4vkNeXiYEUizLdrpdPS1eC2mccyM4NUPRtERrk6ZETkk
+    - FYq2BWQ1V5P1WFBqr3qB2Kb5yHVvSv7upzKodgQE5zXh
+    - AFZnHPzy4mvVCffrVwhewHbFc93uTHvDSFrVH7GtfXF1
+    - hUqAT1KQ7eW1i6Csp9CXYtpPfSAvi835V7wKi5fRfmC
+    - 6Jp2xZUTWdDD2ZyUPRzeMdc6AFQ5K3pFgZxk2EijfjnM
+    - Fgc93D641F8N2d1xLjQ4jmShuD3GE3BsCXA56KBQbF5u
+    - 7UVimffxr9ow1uXYxsr4LHAcV58mLzhmwaeKvJ1pjLiE
+    - 42amVS4KgzR9rA28tkVYqVXjq9Qa8dcZQMbH5EYFX6XC
+    - 4cSM2e6rvbGQUFiJbqytoVMi5GgghSMr8LwVrT9VPSPo
+    - Dpw1EAVrSB1ibxiDQyTAW6Zip3J4Btk2x4SgApQCeFbX
+    - HT2PLQBcG5EiCcNSaMHAjSgd9F98ecpATbk4Sk5oYuM
+
 wormhole:
   coins:
     - coin: WBTC
