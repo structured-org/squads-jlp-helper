@@ -66,7 +66,7 @@ export async function simulateAndBroadcastVersionedTx(
   logger.info('Broadcasting transaction');
   const transactionHash = await provider.connection.sendTransaction(tx, {
     skipPreflight: true,
-    preflightCommitment: 'confirmed',
+    preflightCommitment: 'processed',
   });
   logger.info(`Broadcasting transaction -- success ${transactionHash}`);
   logger.info('Waiting for finalization');

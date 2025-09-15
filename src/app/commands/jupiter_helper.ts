@@ -3,9 +3,11 @@ import { Command } from 'commander';
 import { Logger } from 'pino';
 import { BaseApp } from '@config/config';
 import { JupiterHelper } from '@lib/jupiter_helper';
-import { JupiterHelperCommandValidator } from '@lib/validator';
 import { web3 } from '@project-serum/anchor';
-import { compileTransactionMessageWithAlt } from '@lib/helpers';
+import {
+  compileTransactionMessageWithAlt,
+  simulateAndBroadcastVersionedTx,
+} from '@lib/helpers';
 import { ComputeBudgetProgram } from '@solana/web3.js';
 
 export function registerJupiterHelperProcessOptimalWithdrawsCommand(
@@ -68,15 +70,16 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
       const tx = new web3.VersionedTransaction(messageV0);
       logger.info(`tx length -- ${tx.serialize().length}`);
 
-      const res =
-        await baseApp.anchorProvider.connection.simulateTransaction(tx);
-      console.log(res);
-      // const res = await simulateAndBroadcastVersionedTx(
-      //   baseApp.anchorProvider,
-      //   tx,
-      //   'jupiter helper process',
-      //   logger,
-      // );
-      // console.log(res);
+      tx.sign([baseApp.keypair]);
+      const txhash = await simulateAndBroadcastVersionedTx(
+        baseApp.anchorProvider,
+        tx,
+        'jupiter helper process',
+        logger,
+      );
+      logger.info(`txhash -- ${txhash}`);
+      logger.info(
+        `feeBpsEach -- ${await jupiterHelper.getFeeBpsEach('65YKEZtpbGZUvmVTfrFmSgrM6x65yVP7rUibKFkx9ijdSajaDPUXD6UfSwCe47WDmkSybGYTcphCwPRARjx1XQKb', 2)}`,
+      );
     });
 }

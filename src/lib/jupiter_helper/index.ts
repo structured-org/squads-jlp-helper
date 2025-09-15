@@ -2,16 +2,18 @@ import { Logger } from 'pino';
 import {
   BaseApp,
   JupiterHelperApp,
+  JupiterHelperDepenedentAccounts,
   JupiterPerpetualsDepenedentAccounts,
 } from '@config/config';
 import { BN, Program, web3 } from '@project-serum/anchor';
-import { Program as CoralProgram } from '@coral-xyz/anchor';
+import { Program as CoralProgram, utils } from '@coral-xyz/anchor';
 import { getAssociatedTokenAddressSync, getMint } from '@solana/spl-token';
 import {
   getAssetUnderManagementUsdForCustody,
   PriceCalcMode,
 } from '@lib/jupiter_helper/internal';
 import Decimal from 'decimal.js';
+import fs from 'fs';
 
 export class JupiterHelper {
   private perpsProgramInstance: Program;
@@ -37,23 +39,63 @@ export class JupiterHelper {
     );
   }
 
+  async withdrawAssetIx(
+    jupiterHelperDependentAccounts: JupiterHelperDepenedentAccounts,
+    recipientAta: web3.PublicKey,
+    withdrawMint: web3.PublicKey,
+    amount?: number,
+  ): Promise<web3.TransactionInstruction> {
+    return await this.helperProgramInstance.methods
+      .withdrawAsset({
+        amount: amount ? new BN(amount) : null,
+      })
+      .accounts({
+        mint: withdrawMint,
+        helperConfig: jupiterHelperDependentAccounts.config,
+        helperVault: jupiterHelperDependentAccounts.vault,
+        recipientAta: recipientAta,
+        ownership: jupiterHelperDependentAccounts.ownership,
+      })
+      .instruction();
+  }
+
   get app(): JupiterHelperApp {
     return this.jupiterHelperApp;
+  }
+
+  async getFeeBpsEach(txhash: string, length: number): Promise<Array<number>> {
+    const res: Array<number> = [];
+    for (;;) {
+      const tx = await this.baseApp.anchorProvider.connection.getTransaction(
+        txhash,
+        {
+          commitment: 'confirmed',
+          maxSupportedTransactionVersion: 0,
+        },
+      );
+      if (tx != null) {
+        for (let i = 0; i < length; i++) {
+          const eventIx = tx.meta.innerInstructions[i].instructions[3];
+          const rawData = utils.bytes.bs58.decode(eventIx.data);
+          const base64Data = utils.bytes.base64.encode(rawData.subarray(8));
+          const event =
+            this.perpsProgramInstance.coder.events.decode(base64Data);
+          const feeBps = (event.data.feeBps as BN).toNumber();
+          res.push(Number(feeBps));
+        }
+        break;
+      }
+      await new Promise((r) => setTimeout(r, 200));
+    }
+
+    return res;
   }
 
   async getCustodyAum(
     jupiterPerpetualsDepenedentAccounts: JupiterPerpetualsDepenedentAccounts,
     mode: PriceCalcMode,
   ): Promise<number> {
-    const perpsProgramInstance = new Program(
-      await Program.fetchIdl(
-        this.app.jpAccounts.program,
-        this.baseApp.anchorProvider,
-      ),
-      this.app.jpAccounts.program,
-      this.baseApp.anchorProvider,
-    );
-    const custody = perpsProgramInstance.coder.accounts.decode(
+    const custody = this.perpsProgramInstance.coder.accounts.decode(
       'Custody',
       (
         await this.baseApp.anchorProvider.connection.getAccountInfo(
@@ -62,9 +104,14 @@ export class JupiterHelper {
       ).data,
     );
     const dovesProgramInstance = new Program(
-      await Program.fetchIdl(
-        'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
-        this.baseApp.anchorProvider,
+      // await Program.fetchIdl(
+      //   'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
+      //   this.baseApp.anchorProvider,
+      // ),
+      JSON.parse(
+        fs.readFileSync('/home/vfaust/Downloads/doves.json', {
+          encoding: 'utf-8',
+        }),
       ),
       this.app.jpAccounts.program,
       this.baseApp.anchorProvider,

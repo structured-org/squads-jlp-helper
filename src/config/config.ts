@@ -118,22 +118,20 @@ export type JupiterPerpetualsDepenedentAccounts = {
   custodyTokenAccount: web3.PublicKey;
 };
 
+export type JupiterHelperDepenedentAccounts = {
+  config: web3.PublicKey;
+  vault: web3.PublicKey;
+  ownership: web3.PublicKey;
+};
+
 export type JupiterHelperApp = {
   program: web3.PublicKey;
   altTable?: web3.PublicKey;
   jhAccounts: Map<
     string,
     {
-      withdrawer?: {
-        config: web3.PublicKey;
-        vault: web3.PublicKey;
-        ownership: web3.PublicKey;
-      };
-      provider?: {
-        config: web3.PublicKey;
-        vault: web3.PublicKey;
-        ownership: web3.PublicKey;
-      };
+      withdrawer?: JupiterHelperDepenedentAccounts;
+      provider?: JupiterHelperDepenedentAccounts;
     }
   >;
   mints: {

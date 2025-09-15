@@ -1,11 +1,11 @@
 squads_multisig:
   program_idl: /home/vfaust/repos/squads-helper/idl/squads_multisig.json
-  multisig_address: JDotNUehNc6TfeMsH9XMu3D5xgSisvd6Ld3R24bW43eR
-  vault_pda: GMAyWb5MT7C1Hozr7apvxDNGzv89jye4ZdD6cZ9zR5ub
+  multisig_address: 79NyengHKV9DNT6kVrg211FZBupEMWZmvpUPDxbXR9e3
+  vault_pda: AYBzGpmCGLvLJQHAKEFZGBAm3R8yER7K4c3GZ2YgMEnf
 
 jupiter_helper:
   program: DpNGLF1Z7Z6MViB2STsDB18VbxbkviPmidpjeUB8pGjG
-  alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3
+  alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3 # MAINNET
 
   jh_accounts:
     - coin: USDC
@@ -25,7 +25,7 @@ jupiter_helper:
     USDT: Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB
     WSOL: So11111111111111111111111111111111111111112
     WETH: 7vfCXTUXx5WJV5JADk17DUJ4ksgau7utNKj4b963voxs
-  
+
   jp_accounts:
     lp_token_mint: 27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4
     transfer_authority: AVzP2GeRmqGphJsMxWoqjpUifPpCret7LqWhD8NWQK49
