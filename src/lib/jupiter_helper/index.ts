@@ -237,16 +237,17 @@ export class JupiterHelper {
         .div(jlpVirtualPriceUsd)
         .mul(lpTokenDecimals);
 
-      const tokenAmIn1 = optimalAmountJlp.floor().toNumber();
-      const tokenAmIn2 =
-        tokenAmountIn - tokenAmIn1 < 0 ? tokenAmountIn : tokenAmIn1;
-      if (tokenAmIn2 !== tokenAmountIn) {
-        tokenAmountsIn.push(tokenAmIn2 - tokenAmIn2 * (safetyMargin / 10000));
-        tokenAmountIn -= tokenAmIn2 - tokenAmIn2 * (safetyMargin / 10000);
-      } else {
-        tokenAmountsIn.push(tokenAmIn2);
-        tokenAmountIn -= tokenAmIn2;
-      }
+      const optimalAmountJlpIn = optimalAmountJlp
+        .mul((10_000 - safetyMargin) / 10_000)
+        .floor()
+        .toNumber();
+      const jlpIn =
+        tokenAmountIn - optimalAmountJlpIn < 0
+          ? tokenAmountIn
+          : optimalAmountJlpIn;
+
+      tokenAmountsIn.push(jlpIn);
+      tokenAmountIn -= jlpIn;
 
       custodyAumUsdDeduct = custodyAumUsdDeduct.add(
         maxDiscountDepositUsd.sub(

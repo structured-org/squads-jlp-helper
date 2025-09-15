@@ -5,8 +5,7 @@ squads_multisig:
 
 jupiter_helper:
   program: 9V3jrUDxSgD6ooDdSfmRi6wPo24ArzMUeCVVvHo8xXWd
-  #  alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3 # MAINNET
-  alt_table: A7aw9Rk9x3hEUZz3SywGyAcopkcwXjqzwxTFwLcoLq3P
+  alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3 # MAINNET
 
   jh_accounts:
     - coin: USDC
