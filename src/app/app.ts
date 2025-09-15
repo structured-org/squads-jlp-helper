@@ -4,7 +4,10 @@ import {
   registerAddLiquidityCommand,
   registerBatchAddLiquidityCommand,
 } from './commands/add_liquidity';
-import { registerJupiterHelperProcessOptimalWithdrawsCommand } from './commands/jupiter_helper';
+import {
+  registerHelperWithdrawAssetCommand,
+  registerJupiterHelperProcessOptimalWithdrawsCommand,
+} from './commands/jupiter_helper';
 import { registerRemoveLiquidityCommand } from './commands/remove_liquidity';
 import {
   registerActivateProposalCommand,
@@ -14,10 +17,7 @@ import {
   registerSimulateProposalCommand,
   registerShowMultisigCommand,
 } from './commands/squads';
-import {
-  JupiterHelperCommandValidator,
-  JupiterPerpetualsCommandValidator,
-} from '@lib/validator';
+import { JupiterPerpetualsCommandValidator } from '@lib/validator';
 import {
   getBaseApp,
   parseConfig,
@@ -46,10 +46,6 @@ const jupiterHelperApp = getJupiterHelperAppFromConfig(config);
 const jupiterPerpetualsCommandValidator = new JupiterPerpetualsCommandValidator(
   logger,
   jupiterPerpsApp,
-);
-const jupiterHelperCommandValidator = new JupiterHelperCommandValidator(
-  logger,
-  jupiterHelperApp,
 );
 
 const jupiterHelper = new JupiterHelper(logger, baseApp, jupiterHelperApp);
@@ -119,6 +115,14 @@ registerJupiterHelperProcessOptimalWithdrawsCommand(
   logger,
   baseApp,
   jupiterHelper,
+);
+registerHelperWithdrawAssetCommand(
+  alt,
+  program,
+  logger,
+  baseApp,
+  jupiterHelper,
+  squadsMultisig,
 );
 
 async function main() {
