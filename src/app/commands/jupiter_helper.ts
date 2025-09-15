@@ -44,11 +44,6 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
       logger.info(`optimal amounts -- ${optimalAmounts}`);
       logger.info(`optimal amounts length -- ${optimalAmounts.length}`);
 
-      if (optimalAmounts.length > 5) {
-        logger.error(`optimalAmounts length shouldn't be greater than 5`);
-        process.exit(-1);
-      }
-
       const processIxs: Array<web3.TransactionInstruction> = [];
       for (const optimalAmount of optimalAmounts) {
         const processIx = await jupiterHelper.processIx(
@@ -58,31 +53,36 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
         );
         processIxs.push(processIx);
       }
-      const messageV0 = await compileTransactionMessageWithAlt(
-        baseApp.anchorProvider,
-        [
-          ComputeBudgetProgram.setComputeUnitLimit({
-            units: 1_400_000,
-          }),
-          ...processIxs,
-        ],
-        baseApp.keypair.publicKey,
-        jupiterHelper.app.altTable,
-      );
-      const tx = new web3.VersionedTransaction(messageV0);
-      logger.info(`tx length -- ${tx.serialize().length}`);
 
-      tx.sign([baseApp.keypair]);
-      const txhash = await simulateAndBroadcastVersionedTx(
-        baseApp.anchorProvider,
-        tx,
-        'jupiter helper process',
-        logger,
-      );
-      logger.info(`txhash -- ${txhash}`);
-      logger.info(
-        `feeBpsEach -- ${await jupiterHelper.getFeeBpsEach('65YKEZtpbGZUvmVTfrFmSgrM6x65yVP7rUibKFkx9ijdSajaDPUXD6UfSwCe47WDmkSybGYTcphCwPRARjx1XQKb', 2)}`,
-      );
+      const processTxs: Array<web3.VersionedTransaction> = [];
+      for (let i = 0; i < processIxs.length; i += 3) {
+        const messageV0 = await compileTransactionMessageWithAlt(
+          baseApp.anchorProvider,
+          [
+            ComputeBudgetProgram.setComputeUnitLimit({
+              units: 1_400_000,
+            }),
+            ...processIxs.slice(i, i + 3),
+          ],
+          baseApp.keypair.publicKey,
+          jupiterHelper.app.altTable,
+        );
+        const tx = new web3.VersionedTransaction(messageV0);
+        tx.sign([baseApp.keypair]);
+        logger.info(`tx length -- ${tx.serialize().length}`);
+        processTxs.push(tx);
+      }
+
+      for (const tx of processTxs) {
+        const txhash = await baseApp.anchorProvider.connection.sendTransaction(
+          tx,
+          {
+            skipPreflight: true,
+            preflightCommitment: 'processed',
+          },
+        );
+        logger.info(`txhash -- ${txhash}`);
+      }
     });
 }
 

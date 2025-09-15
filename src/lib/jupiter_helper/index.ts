@@ -13,6 +13,7 @@ import {
   PriceCalcMode,
 } from '@lib/jupiter_helper/internal';
 import Decimal from 'decimal.js';
+import fs from 'fs';
 
 export class JupiterHelper {
   private perpsProgramInstance: Program;
@@ -26,15 +27,28 @@ export class JupiterHelper {
 
   async init() {
     this.perpsProgramInstance = new Program(
-      await Program.fetchIdl(
-        this.app.jpAccounts.program,
-        this.baseApp.anchorProvider,
+      // await Program.fetchIdl(
+      //   this.app.jpAccounts.program,
+      //   this.baseApp.anchorProvider,
+      // ),
+      JSON.parse(
+        fs.readFileSync('/home/vfaust/Downloads/perpetuals.json', {
+          encoding: 'utf-8',
+        }),
       ),
       this.app.jpAccounts.program,
       this.baseApp.anchorProvider,
     );
     this.helperProgramInstance = new CoralProgram(
-      await Program.fetchIdl(this.app.program, this.baseApp.anchorProvider),
+      // await Program.fetchIdl(this.app.program, this.baseApp.anchorProvider),
+      JSON.parse(
+        fs.readFileSync(
+          '/home/vfaust/sandbox/maxbtc-solana/target/idl/jupiter_helper.json',
+          {
+            encoding: 'utf-8',
+          },
+        ),
+      ),
     );
   }
 
@@ -105,9 +119,14 @@ export class JupiterHelper {
       ).data,
     );
     const dovesProgramInstance = new Program(
-      await Program.fetchIdl(
-        'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
-        this.baseApp.anchorProvider,
+      // await Program.fetchIdl(
+      //   'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
+      //   this.baseApp.anchorProvider,
+      // ),
+      JSON.parse(
+        fs.readFileSync('/home/vfaust/Downloads/doves.json', {
+          encoding: 'utf-8',
+        }),
       ),
       this.app.jpAccounts.program,
       this.baseApp.anchorProvider,
