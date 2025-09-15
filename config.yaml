@@ -4,15 +4,15 @@ squads_multisig:
   vault_pda: AYBzGpmCGLvLJQHAKEFZGBAm3R8yER7K4c3GZ2YgMEnf
 
 jupiter_helper:
-  program: DpNGLF1Z7Z6MViB2STsDB18VbxbkviPmidpjeUB8pGjG
+  program: 9V3jrUDxSgD6ooDdSfmRi6wPo24ArzMUeCVVvHo8xXWd
   alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3 # MAINNET
 
   jh_accounts:
     - coin: USDC
       withdrawer:
-        config: 4YLNQxAfBpKfnqYC3h4nL9UX4XZHMur8ht4vr9JgR3dx
-        vault: 3d11rKkTxWwWFuePhuQLJZbDSqBMXBNPBdCkfVTRjg7X
-        ownership: 3vovo9Y93eA45BWDUcX3MFiJjk8RAxq6KCg7u696mEKj
+        config: GtxYZzWTAkUZ3dKzy4ayF6r9Y2GP9gCFm58RViYt4PPf
+        vault: 5WA4RW53MmTR2ykWcifPRWqQ1mXJEVKT5fNZa2KmTdyT
+        ownership: 7LQCW1VTAYz7bryVN6QmSY5dCVvHEcGUMxtvRnQ79UFV
   #   provider:
   #     config:
   #     vault:

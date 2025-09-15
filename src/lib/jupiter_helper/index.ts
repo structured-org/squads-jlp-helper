@@ -13,7 +13,6 @@ import {
   PriceCalcMode,
 } from '@lib/jupiter_helper/internal';
 import Decimal from 'decimal.js';
-import fs from 'fs';
 
 export class JupiterHelper {
   private perpsProgramInstance: Program;
@@ -43,6 +42,7 @@ export class JupiterHelper {
     jupiterHelperDependentAccounts: JupiterHelperDepenedentAccounts,
     recipientAta: web3.PublicKey,
     withdrawMint: web3.PublicKey,
+    from: web3.PublicKey,
     amount?: number,
   ): Promise<web3.TransactionInstruction> {
     return await this.helperProgramInstance.methods
@@ -55,6 +55,7 @@ export class JupiterHelper {
         helperVault: jupiterHelperDependentAccounts.vault,
         recipientAta: recipientAta,
         ownership: jupiterHelperDependentAccounts.ownership,
+        signer: from,
       })
       .instruction();
   }
@@ -104,14 +105,9 @@ export class JupiterHelper {
       ).data,
     );
     const dovesProgramInstance = new Program(
-      // await Program.fetchIdl(
-      //   'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
-      //   this.baseApp.anchorProvider,
-      // ),
-      JSON.parse(
-        fs.readFileSync('/home/vfaust/Downloads/doves.json', {
-          encoding: 'utf-8',
-        }),
+      await Program.fetchIdl(
+        'DoVEsk76QybCEHQGzkvYPWLQu9gzNoZZZt3TPiL597e',
+        this.baseApp.anchorProvider,
       ),
       this.app.jpAccounts.program,
       this.baseApp.anchorProvider,

@@ -129,6 +129,7 @@ export function registerHelperWithdrawAssetCommand(
         ],
         options.recipientAta,
         options.withdrawMint,
+        squadsMultisig.app.vaultPda,
         options.amount ? options.amount : null,
       );
       const altData = (
