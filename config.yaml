@@ -5,7 +5,8 @@ squads_multisig:
 
 jupiter_helper:
   program: 9V3jrUDxSgD6ooDdSfmRi6wPo24ArzMUeCVVvHo8xXWd
-  alt_table: G6hHJpnGkB7w9hxJfodnVTaRr4Toy8YSAZ4X2nVVt3m3 # MAINNET
+  # alt_table: Hobuco39RVieihehJXwQbMrZFqhv9rx3D1QDy8N8sbTD # Mainnet test
+  alt_table: 3CTWwUt5BihT1iswRnkyFkByzyHRzMpJgNZyrrsDeEJM
 
   jh_accounts:
     - coin: USDC
@@ -82,13 +83,13 @@ jupiter_helper:
     - DpNGLF1Z7Z6MViB2STsDB18VbxbkviPmidpjeUB8pGjG
 
     # Jupiter Helper (USDC Withdrawer)
-    - 4YLNQxAfBpKfnqYC3h4nL9UX4XZHMur8ht4vr9JgR3dx # config
-    - 3d11rKkTxWwWFuePhuQLJZbDSqBMXBNPBdCkfVTRjg7X # vault
-    - GHsGH35N2yrdCKyhoU8GA1NZnRbSt2fDQuztUqPEcL5 # USDC ATA vault
-    - A8mo5R5vjoFAT1TEeBP6eziZXidbTXi2TZksPYA28kz5 # JLP ATA vault
-    - xjeZ5sCBGD5VBjGHmc8MJCyBojq1doULrCds3H6bDQC # USDC ATA Recipient
-    - 4z9jpMSW6wnDrk1GYPEzXYuuBWVMQ7vDrqjc5HqhMuMq # JLP ATA Recipient
-    - 3vovo9Y93eA45BWDUcX3MFiJjk8RAxq6KCg7u696mEKj # ownership
+    - 4YZ5BV5FTRAsg9XKtjRo15rdjHStWbucHndnDFQK3GgM # config
+    - n8ySRqEcyWJqjHihnmbQZP1rgGGfkTRKmtZPA1xJZqb # vault
+    - DkMMXiHFAthNhJPwvYtG3aPyVqNnuxLgJebPYCqASt4Y # USDC ATA vault
+    - BSt1d7fMVsToZ5fQxeN5YQyKy8yNJJJHayqbC8htXJeX # JLP ATA vault
+    - GthGTGkCXiMopD9pyf6Ccod4coUQnwLTbA5RAQ4e7L1B # USDC ATA Recipient
+    - 3YNZwuEmcDr4NwjN3ggXNCs4mHUPimm31Dmu19FszJH5 # JLP ATA Recipient
+    - Azn1c6XRcYGm8vbu1hcrEGbXqtkr3VXYRNPxcq1XVyGb # ownership
 
     # Mints
     - 27G8MtK7VtTcCHkpASjSDdkWWYfoqT6ggEuKidVJidD4

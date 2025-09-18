@@ -7,10 +7,10 @@ import { web3 } from '@project-serum/anchor';
 import {
   compileTransactionMessageWithAlt,
   simulateAndBroadcast,
-  simulateAndBroadcastVersionedTx,
 } from '@lib/helpers';
 import { ComputeBudgetProgram } from '@solana/web3.js';
 import { SquadsMultisig } from '@lib/squads';
+import * as readline from 'node:readline';
 
 export function registerJupiterHelperProcessOptimalWithdrawsCommand(
   alt: Alt,
@@ -41,48 +41,66 @@ export function registerJupiterHelperProcessOptimalWithdrawsCommand(
         options.amountToProcess,
         options.assetOut,
       );
-      logger.info(`optimal amounts -- ${optimalAmounts}`);
-      logger.info(`optimal amounts length -- ${optimalAmounts.length}`);
-
-      const processIxs: Array<web3.TransactionInstruction> = [];
-      for (const optimalAmount of optimalAmounts) {
-        const processIx = await jupiterHelper.processIx(
-          optimalAmount,
-          options.assetOut,
-          'withdrawer',
+      logger.info(`Optimal amounts length -- ${optimalAmounts.length}`);
+      logger.info(
+        `Optimal amounts sum -- ${optimalAmounts.reduce((a, b) => a + b, 0)}`,
+      );
+      for (let i = 0; i < optimalAmounts.length; i++) {
+        logger.info(
+          `Optimal amount -- ${optimalAmounts[i]}(${optimalAmounts[i].toString().length})`,
         );
-        processIxs.push(processIx);
       }
 
-      const processTxs: Array<web3.VersionedTransaction> = [];
-      for (let i = 0; i < processIxs.length; i += 3) {
-        const messageV0 = await compileTransactionMessageWithAlt(
-          baseApp.anchorProvider,
-          [
-            ComputeBudgetProgram.setComputeUnitLimit({
-              units: 1_400_000,
-            }),
-            ...processIxs.slice(i, i + 3),
-          ],
-          baseApp.keypair.publicKey,
-          jupiterHelper.app.altTable,
-        );
-        const tx = new web3.VersionedTransaction(messageV0);
-        tx.sign([baseApp.keypair]);
-        logger.info(`tx length -- ${tx.serialize().length}`);
-        processTxs.push(tx);
-      }
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout,
+      });
 
-      for (const tx of processTxs) {
-        const txhash = await baseApp.anchorProvider.connection.sendTransaction(
-          tx,
-          {
-            skipPreflight: true,
-            preflightCommitment: 'processed',
-          },
-        );
-        logger.info(`txhash -- ${txhash}`);
-      }
+      logger.info('[y/n]');
+      rl.question('', async (res) => {
+        if (res !== 'y' && res !== 'yes') {
+          logger.error('User aborted');
+          process.exit(-1);
+        }
+
+        const processIxs: Array<web3.TransactionInstruction> = [];
+        for (const optimalAmount of optimalAmounts) {
+          const processIx = await jupiterHelper.processIx(
+            optimalAmount,
+            options.assetOut,
+            'withdrawer',
+          );
+          processIxs.push(processIx);
+        }
+
+        const processTxs: Array<web3.VersionedTransaction> = [];
+        for (let i = 0; i < processIxs.length; i += 3) {
+          const messageV0 = await compileTransactionMessageWithAlt(
+            baseApp.anchorProvider,
+            [
+              ComputeBudgetProgram.setComputeUnitLimit({
+                units: 1_400_000,
+              }),
+              ...processIxs.slice(i, i + 3),
+            ],
+            baseApp.keypair.publicKey,
+            jupiterHelper.app.altTable,
+          );
+          const tx = new web3.VersionedTransaction(messageV0);
+          tx.sign([baseApp.keypair]);
+          logger.info(`tx length -- ${tx.serialize().length}`);
+          processTxs.push(tx);
+        }
+
+        for (const tx of processTxs) {
+          const txhash =
+            await baseApp.anchorProvider.connection.sendTransaction(tx, {
+              skipPreflight: true,
+              preflightCommitment: 'processed',
+            });
+          logger.info(`txhash -- ${txhash}`);
+        }
+      });
     });
 }
 

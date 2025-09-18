@@ -212,7 +212,11 @@ export class JupiterHelper {
       let targetUsd = poolAumUsd
         .mul(new Decimal(custody.targetRatioBps.toNumber()))
         .div(10000);
-      let initialDiffUsd = targetUsd.sub(currentUsd).abs();
+      let initialDiffUsd = currentUsd.sub(targetUsd);
+      if (initialDiffUsd.isNegative()) {
+        throw new Error('Initial diff is negative');
+      }
+
       let maxDiscountDepositUsd = initialDiffUsd.mul(2).div(swapMultiplier);
 
       let jlpVirtualPriceUsd = poolAumUsd
