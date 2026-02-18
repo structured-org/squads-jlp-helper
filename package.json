@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "node -r ts-node/register --env-file=./.env src/app/app.ts",
+    "jupiter-helper-withdraw-asset": "node -r ts-node/register --env-file=./.env src/app/app.ts jupiter-helper-withdraw-asset",
+    "jupiter-helper-process-optimal-withdraws": "node -r ts-node/register --env-file=./.env src/app/app.ts jupiter-helper-process-optimal-withdraws",
     "wormhole-ethereum": "node -r ts-node/register --env-file=./.env src/app/app.ts wormhole-ethereum",
     "add-liquidity": "node -r ts-node/register --env-file=./.env src/app/app.ts add-liquidity",
     "remove-liquidity": "node -r ts-node/register --env-file=./.env src/app/app.ts remove-liquidity",
@@ -17,6 +19,7 @@
     "show-multisig": "node -r ts-node/register --env-file=./.env src/app/app.ts show-multisig"
   },
   "dependencies": {
+    "@coral-xyz/anchor": "^0.31.1",
     "@jup-ag/api": "^6.0.12",
     "@project-serum/anchor": "^0.26.0",
     "@solana-developers/helpers": "^2.8.1",
@@ -33,6 +36,7 @@
     "borsh": "^0.7.0",
     "bs58": "^6.0.0",
     "commander": "^13.1.0",
+    "decimal.js": "^10.6.0",
     "mathjs": "^14.4.0",
     "pino": "^9.6.0",
     "pino-pretty": "^13.0.0",

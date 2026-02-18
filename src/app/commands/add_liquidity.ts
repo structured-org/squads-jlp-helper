@@ -7,7 +7,7 @@ import { Logger } from 'pino';
 import { SquadsMultisig } from '@lib/squads';
 import { web3 } from '@project-serum/anchor';
 import { Alt, createJupiterPerpsAltTableIfNotExist } from '@lib/alt';
-import { CommandValidator } from '@lib/validator';
+import { JupiterPerpetualsCommandValidator } from '@lib/validator';
 
 export function registerBatchAddLiquidityCommand(
   alt: Alt,
@@ -16,7 +16,7 @@ export function registerBatchAddLiquidityCommand(
   baseApp: BaseApp,
   jupiterPerps: JupiterPerps,
   squadsMultisig: SquadsMultisig,
-  commandValidator: CommandValidator,
+  jupiterPerpetualsCommandValidator: JupiterPerpetualsCommandValidator,
 ) {
   program
     .command('batch-add-liquidity')
@@ -37,7 +37,9 @@ export function registerBatchAddLiquidityCommand(
     )
     .action(async (options) => {
       await createJupiterPerpsAltTableIfNotExist(alt, jupiterPerps.app);
-      const coin = commandValidator.validateAmount(options.amount);
+      const coin = jupiterPerpetualsCommandValidator.validateAmount(
+        options.amount,
+      );
       const batch = await squadsMultisig.getBatch(options.proposalIndex!);
 
       logger.info(`Provide Liquidity Amount -- ${options.amount}`);
@@ -79,7 +81,7 @@ export function registerAddLiquidityCommand(
   baseApp: BaseApp,
   jupiterPerps: JupiterPerps,
   multisigProvider: MultisigProvider,
-  commandValidator: CommandValidator,
+  jupiterPerpetualsCommandValidator: JupiterPerpetualsCommandValidator,
 ) {
   program
     .command('add-liquidity')
@@ -96,7 +98,9 @@ export function registerAddLiquidityCommand(
     )
     .action(async (options) => {
       await createJupiterPerpsAltTableIfNotExist(alt, jupiterPerps.app);
-      const coin = commandValidator.validateAmount(options.amount);
+      const coin = jupiterPerpetualsCommandValidator.validateAmount(
+        options.amount,
+      );
 
       logger.info(`Provide Liquidity Amount -- ${options.amount}`);
       logger.info(

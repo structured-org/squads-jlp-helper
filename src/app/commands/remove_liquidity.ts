@@ -5,7 +5,7 @@ import { simulateAndBroadcast } from '@lib/helpers';
 import { Logger } from 'pino';
 import { BaseApp } from '@config/config';
 import { Alt, createJupiterPerpsAltTableIfNotExist } from '@lib/alt';
-import { CommandValidator } from '@lib/validator';
+import { JupiterPerpetualsCommandValidator } from '@lib/validator';
 
 export function registerRemoveLiquidityCommand(
   alt: Alt,
@@ -14,7 +14,7 @@ export function registerRemoveLiquidityCommand(
   baseApp: BaseApp,
   jupiterPerps: JupiterPerps,
   multisigProvider: MultisigProvider,
-  commandValidator: CommandValidator,
+  jupiterPerpetualsCommandValidator: JupiterPerpetualsCommandValidator,
 ) {
   program
     .command('remove-liquidity')
@@ -35,7 +35,7 @@ export function registerRemoveLiquidityCommand(
     )
     .action(async (options) => {
       await createJupiterPerpsAltTableIfNotExist(alt, jupiterPerps.app);
-      const coin = commandValidator.validateJlpAmount(
+      const coin = jupiterPerpetualsCommandValidator.validateJlpAmount(
         options.amount,
         options.denomOut,
       );

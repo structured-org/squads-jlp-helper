@@ -4,6 +4,10 @@ import {
   registerAddLiquidityCommand,
   registerBatchAddLiquidityCommand,
 } from './commands/add_liquidity';
+import {
+  registerHelperWithdrawAssetCommand,
+  registerJupiterHelperProcessOptimalWithdrawsCommand,
+} from './commands/jupiter_helper';
 import { registerRemoveLiquidityCommand } from './commands/remove_liquidity';
 import {
   registerActivateProposalCommand,
@@ -13,10 +17,11 @@ import {
   registerSimulateProposalCommand,
   registerShowMultisigCommand,
 } from './commands/squads';
-import { CommandValidator } from '@lib/validator';
+import { JupiterPerpetualsCommandValidator } from '@lib/validator';
 import {
   getBaseApp,
   parseConfig,
+  getJupiterHelperAppFromConfig,
   getJupiterPerpsAppFromConfig,
   getSquadsMultisigAppFromConfig,
   getWormholeAppfromConfig,
@@ -27,6 +32,7 @@ import { JupiterPerps } from '@lib/jlp';
 import { WormholeEthereum } from '@lib/wormhole';
 import { Alt } from '@lib/alt';
 import { MultisigProvider } from '@lib/multisig_provider';
+import { JupiterHelper } from '@lib/jupiter_helper';
 
 const logger = getLogger();
 const config = parseConfig(process.env.CONFIG_PATH);
@@ -35,9 +41,14 @@ const baseApp = getBaseApp();
 const jupiterPerpsApp = getJupiterPerpsAppFromConfig(config);
 const squadsMultisigApp = getSquadsMultisigAppFromConfig(config);
 const wormholeApp = getWormholeAppfromConfig(config);
+const jupiterHelperApp = getJupiterHelperAppFromConfig(config);
 
-const commandValidator = new CommandValidator(logger, jupiterPerpsApp);
+const jupiterPerpetualsCommandValidator = new JupiterPerpetualsCommandValidator(
+  logger,
+  jupiterPerpsApp,
+);
 
+const jupiterHelper = new JupiterHelper(logger, baseApp, jupiterHelperApp);
 const jupiterPerps = new JupiterPerps(logger, baseApp, jupiterPerpsApp);
 const squadsMultisig = new SquadsMultisig(logger, baseApp, squadsMultisigApp);
 const alt = new Alt(logger, baseApp);
@@ -70,7 +81,7 @@ registerBatchAddLiquidityCommand(
   baseApp,
   jupiterPerps,
   squadsMultisig,
-  commandValidator,
+  jupiterPerpetualsCommandValidator,
 );
 registerAddLiquidityCommand(
   alt,
@@ -79,7 +90,7 @@ registerAddLiquidityCommand(
   baseApp,
   jupiterPerps,
   multisigProvider,
-  commandValidator,
+  jupiterPerpetualsCommandValidator,
 );
 registerRemoveLiquidityCommand(
   alt,
@@ -88,7 +99,7 @@ registerRemoveLiquidityCommand(
   baseApp,
   jupiterPerps,
   multisigProvider,
-  commandValidator,
+  jupiterPerpetualsCommandValidator,
 );
 registerWormholeEthereumCommand(
   alt,
@@ -98,8 +109,24 @@ registerWormholeEthereumCommand(
   wormholeEthereum,
   multisigProvider,
 );
+registerJupiterHelperProcessOptimalWithdrawsCommand(
+  alt,
+  program,
+  logger,
+  baseApp,
+  jupiterHelper,
+);
+registerHelperWithdrawAssetCommand(
+  alt,
+  program,
+  logger,
+  baseApp,
+  jupiterHelper,
+  squadsMultisig,
+);
 
-function main() {
+async function main() {
+  await jupiterHelper.init();
   program.parse();
 }
 
